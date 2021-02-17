@@ -17,6 +17,7 @@ cobrinha[0] = {
   x: 8 * box,
   y: 8 * box
 }
+let direcao = "direita";
 
 // função para cliar o "campo do jogo"
 function criaFundo(){
@@ -33,5 +34,30 @@ function criaCobrinha(){
   }
 }
 
-criaFundo();
-criaCobrinha();
+function iniciarJogo(){
+  criaFundo();
+  criaCobrinha();
+
+  let cobrinhaX = cobrinha[0].x;
+  let cobrinhaY = cobrinha[0].y;
+
+  // movimenta para a direção determinada
+  if(direcao == "direita") cobrinhaX += box;
+  if(direcao == "esquerda") cobrinhaX -= box;
+  if(direcao == "cima") cobrinhaY -= box;
+  if(direcao == "baixo") cobrinhaY += box;
+
+  // retira o ultimo elemento do array (rabinho da cobra)
+  cobrinha.pop();
+
+  // cria uma nova cabeça para a cobra
+  let novaCabeca = {
+    x: cobrinhaX,
+    y: cobrinhaY
+  }
+
+  // acrescenta um elemento na frente do array
+  cobrinha.unshift(novaCabeca);
+}
+
+let jogo = setInterval(iniciarJogo, 100);
