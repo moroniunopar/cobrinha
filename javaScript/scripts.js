@@ -10,6 +10,8 @@ const context = canvas.getContext("2d");
 
 // tamanho do quadradinho = 32 pixels
 const box = 32;
+const fimTela = 512;
+let direcao = "esquerda";
 
 // variaveis base para a cobrinha que será um array
 const cobrinha = [];
@@ -17,7 +19,6 @@ cobrinha[0] = {
   x: 8 * box,
   y: 8 * box
 }
-let direcao = "direita";
 
 // função para cliar o "campo do jogo"
 function criaFundo(){
@@ -34,18 +35,32 @@ function criaCobrinha(){
   }
 }
 
+document.addEventListener('keydown', mover);
+
+function mover(event){
+  if (event.keyCode == 39 && direcao != "esquerda") direcao = "direita";
+  if (event.keyCode == 40 && direcao != "cima") direcao = "baixo";
+  if (event.keyCode == 37 && direcao != "direita") direcao = "esquerda";
+  if (event.keyCode == 38 && direcao != "baixo") direcao = "cima";
+}
+
 function iniciarJogo(){
   criaFundo();
   criaCobrinha();
 
   let cobrinhaX = cobrinha[0].x;
   let cobrinhaY = cobrinha[0].y;
-
-  // movimenta para a direção determinada
-  if(direcao == "direita") cobrinhaX += box;
-  if(direcao == "esquerda") cobrinhaX -= box;
-  if(direcao == "cima") cobrinhaY -= box;
-  if(direcao == "baixo") cobrinhaY += box;
+  // ----------------------------------------------------------------------------- //
+  // aproveeitando a tipagem dinâmica do javaScript para  "economizar" IFs ;) ---- //
+  //                                                                               //
+  cobrinhaX = cobrinhaX + (box * (direcao == "direita"))                           //
+                        - (box * (direcao == "esquerda"));                         //
+  cobrinhaX = (cobrinhaX * (cobrinhaX < fimTela) + (fimTela * (cobrinhaX < 0 )));  //
+                                                                                   //
+  cobrinhaY = cobrinhaY + (box * (direcao == "baixo"))                             //
+                        - (box * (direcao == "cima"));                             //  
+  cobrinhaY = (cobrinhaY * (cobrinhaY < fimTela) + (fimTela * (cobrinhaY < 0 )));  //
+  // ----------------------------------------------------------------------------- //
 
   // retira o ultimo elemento do array (rabinho da cobra)
   cobrinha.pop();
@@ -61,3 +76,6 @@ function iniciarJogo(){
 }
 
 let jogo = setInterval(iniciarJogo, 100);
+
+
+
