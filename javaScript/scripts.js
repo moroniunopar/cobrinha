@@ -12,15 +12,23 @@ const context = canvas.getContext("2d");
 const box = 32;
 const fimTela = 512;
 let direcao = "esquerda";
-let totalPontos = 0;
+let totalPontos = 60;
+let descontaTempo = 0;
+let descontaPonto = 0;
+
+// dificuldade = aumenta a área de erro ao redor da comida,
+// ou seja, quanto maior este número mais preciso ao pegar 
+// a comita o jogador tem que ser.
+// Também aumenta o desconto de pontos quando a cobra se acerta
 let dificuldade = 2;
+
 let inicio = true;
 let comida = {cor: "", pontos: 0, x: 0, y: 0, }
 
-const baseComida =[ {cor:"yelow", ponto:100}, 
+const baseComida =[ {cor:"yellow", ponto:100}, 
                     {cor:"orange", ponto:250},
                     {cor:"red", ponto:300},
-                    {cor:"blue", ponto:500}
+                    {cor:"teal", ponto:500}
                   ]; 
 
 function novaComida() {
@@ -59,7 +67,7 @@ function criaCobrinha(){
 function criaComida(){
   context.fillStyle = comida.cor;
   context.fillRect(comida.x, comida.y, box, box);
-  context.fillStyle = "White";
+  context.fillStyle = "black";
   context.fillText(comida.pontos, (comida.x + 8), (comida.y + 20));
 }
 
@@ -83,8 +91,14 @@ function iniciarJogo(){
   criaComida();
   pontuar();
 
+  descontaTempo ++ ;
+  totalPontos = totalPontos - (1*(descontaTempo >= 10));
+  descontaTempo = descontaTempo * (descontaTempo < 10);
 
-  console.log(Math.floor(Math.random() * 4 ));
+  if (totalPontos <= 0) {
+    alert("Sinto muito.... Fim de Jogo!!!  :( ")
+    clearInterval(iniciarJogo);
+  }
 
 
   let cobrinhaX = cobrinha[0].x;
@@ -101,6 +115,7 @@ function iniciarJogo(){
   cobrinhaY = (cobrinhaY * (cobrinhaY < fimTela) + (fimTela * (cobrinhaY < 0 )));  //
   // ----------------------------------------------------------------------------- //
   
+
   // - Verifica "comilança" ------------------------------------------------------
   if (cobrinhaX == comida.x && cobrinhaY == comida.y) {
     // caso pegue a comida,
@@ -113,21 +128,27 @@ function iniciarJogo(){
     // retira o ultimo elemento do array (rabinho da cobra)
     cobrinha.pop();
     // e se não pegar mas passar perto, a comida vale menos.
-    comida.pontos = comida.pontos - (1 * 
+
+    descontaPonto = (1 * 
          (cobrinhaX > (comida.x - (dificuldade * box))) 
       && (cobrinhaX < (comida.x + (dificuldade * box)))
       && (cobrinhaY > (comida.y - (dificuldade * box))) 
       && (cobrinhaY < (comida.y + (dificuldade * box)))
       )
-
+      comida.pontos = comida.pontos - descontaPonto;
+      totalPontos = totalPontos - descontaPonto;
 
   }
   // ----------------------------------------------------------------------------
 
   // - Caso a cobrinha se acerte
-
+  for (i=1; i < cobrinha.length; i++){
+    if (cobrinha[0].x == cobrinha[i].x && cobrinha[0].y == cobrinha[i].y){
+      cobrinha.pop();
+      totalPontos = totalPontos - (cobrinha.length*dificuldade*10);
+    } 
+  }
   
-
   // cria uma nova cabeça para a cobra
   let novaCabeca = {
     x: cobrinhaX,
@@ -136,6 +157,8 @@ function iniciarJogo(){
 
   // acrescenta um elemento na frente do array
   cobrinha.unshift(novaCabeca);
+
+  // fim de jogo -> quando a pontuação chegar a zero
 }
 
 let jogo = setInterval(iniciarJogo, 100);
